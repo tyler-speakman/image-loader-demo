@@ -1,0 +1,149 @@
+<html>
+
+<head>
+    <link rel="stylesheet" href="http://netdna.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap.min.css">
+
+    <script src="http://cdnjs.cloudflare.com/ajax/libs/jquery/2.1.0/jquery.min.js"></script>
+    <script src="http://cdnjs.cloudflare.com/ajax/libs/mustache.js/0.7.2/mustache.min.js"></script>
+    <script src="http://cdnjs.cloudflare.com/ajax/libs/async/0.2.10/async.min.js"></script>
+    <!--     <script src="http://cdnjs.cloudflare.com/ajax/libs/moment.js/2.5.1/moment.min.js"></script>
+    <script src="http://cdnjs.cloudflare.com/ajax/libs/d3/3.4.2/d3.min.js"></script>-->
+    <script src="http://cdnjs.cloudflare.com/ajax/libs/lodash.js/2.4.1/lodash.min.js"></script>
+
+    <script src="http://cdnjs.cloudflare.com/ajax/libs/packery/1.1.2/packery.pkgd.min.js"></script>
+    <script src="http://netdna.bootstrapcdn.com/bootstrap/3.1.1/js/bootstrap.min.js"></script>
+
+</head>
+
+<body>
+    <div class="container">
+        <div class="jumbotron">
+            <h1>Image Loader Demo</h1>
+            <p>A quick and dirty image loader demo.
+            </p>
+        </div>
+
+        <div class="row">
+            <div role="form">
+                <div class="form-group">
+                    <label for="imageSources">Image Source(s)</label>
+
+                    <textarea name="" id="imageSources" class="form-control" placeholder="Enter image source(s)" style="width:100%">
+
+                    </textarea>
+                    <!--                    https://i.chzbgr.com/maxW500/8111414528/h01ECD6E5/ https://i.chzbgr.com/maxW500/8108916480/hEBC899A2/ https://i.chzbgr.com/maxW500/8110513664/hA3A0735B/ https://i.chzbgr.com/maxW500/8105867008/h0F928557/ https://i.chzbgr.com/maxW500/8100100864/h6B845F1A/ https://i.chzbgr.com/maxW500/8105339904/hACEB58E5/ https://i.chzbgr.com/maxW500/8104379136/h6796F116/ https://i.chzbgr.com/maxW500/8102545408/h967D722C/ https://i.chzbgr.com/maxW500/8101120512/hADB2E9BF/ https://i.chzbgr.com/maxW500/8100080896/h23550B01/ https://i.chzbgr.com/maxW500/8105615360/hAD96E959/ https://i.chzbgr.com/maxW500/8104376064/h6284DB43/ https://i.chzbgr.com/maxW500/8099811584/h1D5F19A3/ -->
+                </div>
+                <button id="imageUpdate" class="btn btn-default" onclick="update()">Update</button>
+            </div>
+        </div>
+        <div class="row">
+
+            <div id="imageDisplay">
+                <div class="progress">
+                    <div class="progress-bar" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" style="width: 0%;">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script>
+    $('.imageDisplay progress').hide();
+
+    var progress = (function() {
+        var self = {};
+
+        self.value = 0;
+        self.max = 1;
+        self.hide = function() {
+            $('#imageDisplay .progress').hide();
+        };
+        self.show = function() {
+            $('#imageDisplay .progress').show();
+        };
+        self.setValue = function(value) {
+            self.value = value;
+            self.update();
+        };
+        self.setMax = function(max) {
+            self.max = max;
+            self.update();
+        };
+        self.update = function() {
+            var percentageLabel = Mustache.render('{{percent}}%', {
+                percent: Math.floor(self.value / self.max * 100)
+            });
+            var ratioLabel = Mustache.render('{{value}} / {{max}}', self);
+            console.log(percentageLabel, ratioLabel)
+            $('#imageDisplay .progress .progress-bar')
+                .width(percentageLabel)
+                .html(Mustache.render('{{percentageLabel}} ({{ratioLabel}})', {
+                    percentageLabel: percentageLabel.toString(),
+                    ratioLabel: ratioLabel.toString()
+                }));
+        };
+
+        return self
+    })();
+    var update = function() {
+        // Remove existing images
+        $('#imageDisplay').find('.img').remove();
+
+        // Add new images
+        var $imageSources = $('#imageSources');
+        var unparsedImageSources = $imageSources.val();
+        var imagesRegExp = new RegExp(/(http((?!http).)+)/gi)
+        var imageSourceArray = unparsedImageSources.split(imagesRegExp);
+        imageSourceArray = _.filter(imageSourceArray, function(value, index) {
+            return imagesRegExp.test(value);
+        });
+
+        // If there are not any images to load, then exit.
+        if (imageSourceArray.length === 0) {
+            return;
+        }
+
+
+        progress.setValue(0);
+        progress.setMax(imageSourceArray.length);
+        progress.show();
+
+        async.map(imageSourceArray,
+            function(value, callback) {
+                var img = new Image();
+                img.onload = function(evt) {
+                    progress.setValue(progress.value + 1);
+
+                    var target = evt.target
+                    var $target = $(target);
+                    $target.addClass('img')
+                        .addClass('img-responsive')
+                        .addClass('img-thumbnail');
+
+                    return callback(null, $target);
+                };
+
+                img.src = value;
+                return;
+
+            },
+
+            function(err, results) {
+                progress.setValue(progress.max);
+                progress.hide();
+                $('#imageDisplay').append(results);
+                $('#imageDisplay').packery({
+                    itemSelector: '.img',
+                    gutter: 10
+                });
+            });
+    };
+
+    document.ready = function() {
+        document.ready = null;
+        update();
+    };
+    // $('button#imageUpdate').click = update;
+    </script>
+</body>
+
+</html>
