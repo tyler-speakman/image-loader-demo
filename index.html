@@ -13,68 +13,57 @@
     <script src="http://cdnjs.cloudflare.com/ajax/libs/packery/1.1.2/packery.pkgd.min.js"></script>
     <script src="http://netdna.bootstrapcdn.com/bootstrap/3.1.1/js/bootstrap.min.js"></script>
 
-</head>
-
-<body>
-    <div class="container">
-        <div class="jumbotron">
-            <h1>Image Loader Demo</h1>
-            <p>A quick and dirty image loader demo.
-            </p>
-        </div>
-
-        <div class="row">
-            <div role="form">
-                <div class="form-group">
-                    <label for="imageSources">Image Source(s)</label>
-
-                    <textarea name="" id="imageSources" class="form-control" placeholder="Enter image source(s)" style="width:100%">
-
-                    </textarea>
-                    <!--                    https://i.chzbgr.com/maxW500/8111414528/h01ECD6E5/ https://i.chzbgr.com/maxW500/8108916480/hEBC899A2/ https://i.chzbgr.com/maxW500/8110513664/hA3A0735B/ https://i.chzbgr.com/maxW500/8105867008/h0F928557/ https://i.chzbgr.com/maxW500/8100100864/h6B845F1A/ https://i.chzbgr.com/maxW500/8105339904/hACEB58E5/ https://i.chzbgr.com/maxW500/8104379136/h6796F116/ https://i.chzbgr.com/maxW500/8102545408/h967D722C/ https://i.chzbgr.com/maxW500/8101120512/hADB2E9BF/ https://i.chzbgr.com/maxW500/8100080896/h23550B01/ https://i.chzbgr.com/maxW500/8105615360/hAD96E959/ https://i.chzbgr.com/maxW500/8104376064/h6284DB43/ https://i.chzbgr.com/maxW500/8099811584/h1D5F19A3/ -->
-                </div>
-                <button id="imageUpdate" class="btn btn-default" onclick="update()">Update</button>
-            </div>
-        </div>
-        <div class="row">
-
-            <div id="imageDisplay">
-                <div class="progress">
-                    <div class="progress-bar" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" style="width: 0%;">
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
     <script>
-    $('.imageDisplay progress').hide();
-
+    /**
+     * A simplified set of functions for updating the progress bar
+     */
     var progress = (function() {
         var self = {};
 
         self.value = 0;
         self.max = 1;
+
+        /**
+         * Hide the progress bar.
+         */
         self.hide = function() {
-            $('#imageDisplay .progress').hide();
+            $('.progress').hide();
         };
+
+        /**
+         * Show the progress bar.
+         */
         self.show = function() {
-            $('#imageDisplay .progress').show();
+            $('.progress').show();
         };
+
+        /**
+         * Set the value of the progress bar.
+         */
         self.setValue = function(value) {
             self.value = value;
             self.update();
         };
+
+        /**
+         * Set the maximum value of the progress bar.
+         */
         self.setMax = function(max) {
             self.max = max;
             self.update();
         };
+
+        /**
+         * Update the progress bar display
+         * @return {[type]} [description]
+         */
         self.update = function() {
             var percentageLabel = Mustache.render('{{percent}}%', {
                 percent: Math.floor(self.value / self.max * 100)
             });
             var ratioLabel = Mustache.render('{{value}} / {{max}}', self);
             console.log(percentageLabel, ratioLabel)
-            $('#imageDisplay .progress .progress-bar')
+            $('.progress .progress-bar')
                 .width(percentageLabel)
                 .html(Mustache.render('{{percentageLabel}} ({{ratioLabel}})', {
                     percentageLabel: percentageLabel.toString(),
@@ -82,8 +71,14 @@
                 }));
         };
 
+        self.hide();
+
         return self
     })();
+
+    /**
+     * Loads images.
+     */
     var update = function() {
         // Remove existing images
         $('#imageDisplay').find('.img').remove();
@@ -102,17 +97,24 @@
             return;
         }
 
-
+        // Initialize progress bar
         progress.setValue(0);
         progress.setMax(imageSourceArray.length);
         progress.show();
 
+        // Load the images
         async.map(imageSourceArray,
             function(value, callback) {
                 var img = new Image();
+
+                // Handle successful loads
                 img.onload = function(evt) {
+                    console.log(Mustache.render('successful load of "{{src}}"', evt.target));
+
+                    // Update progress bar
                     progress.setValue(progress.value + 1);
 
+                    // Apply classes to image
                     var target = evt.target
                     var $target = $(target);
                     $target.addClass('img')
@@ -122,14 +124,32 @@
                     return callback(null, $target);
                 };
 
+                // Handle failed loads
+                img.onerror = function(evt) {
+                    console.log(Mustache.render('failed load of "{{src}}"', evt.target));
+
+                    var target = evt.target
+                    var $target = $(target);
+                    $target.addClass('img')
+                        .addClass('img-responsive')
+                        .addClass('img-thumbnail')
+                        .width('32')
+                        .height('32')
+                        .attr('title', Mustache.render('failed load of {{src}}', target));
+
+                    return callback(null, $target);
+                };
+
                 img.src = value;
                 return;
-
             },
 
             function(err, results) {
+                // Update progress
                 progress.setValue(progress.max);
                 progress.hide();
+
+                // Append image (and organize)
                 $('#imageDisplay').append(results);
                 $('#imageDisplay').packery({
                     itemSelector: '.img',
@@ -138,12 +158,64 @@
             });
     };
 
+    // Initialize the page when all elements are loaded.
     document.ready = function() {
         document.ready = null;
         update();
     };
-    // $('button#imageUpdate').click = update;
     </script>
+
+</head>
+
+<body>
+    <div class="container">
+        <div class="jumbotron">
+            <h1>Image Loader Demo</h1>
+            <p>A quick and dirty image loader demo.
+            </p>
+            <p>Simply paste in a series of URLs, then push the "Update" button.
+            </p>
+            <p>For example, try copying and pasting the following:
+            </p>
+            <p>
+                <span class="label label-default">https://www.google.com/favicon.ico</span>
+                <span class="label label-default">https://www.yahoo.com/favicon.ico</span>
+                <span class="label label-default">https://www.bing.com/favicon.ico</span>
+                <span class="label label-default">https://www.amazon.com/favicon.ico</span>
+                <span class="label label-default">https://www.wikipedia.com/favicon.ico</span>
+                <span class="label label-default">https://www.ebay.com/favicon.ico</span>
+                <span class="label label-default">https://www.yandex.com/favicon.ico</span>
+                <span class="label label-default">https://www.facebook.com/favicon.ico</span>
+                <span class="label label-default">https://www.twitter.com/favicon.ico</span>
+            </p>
+        </div>
+
+        <div class="row">
+            <div role="form">
+                <div class="form-group">
+                    <label for="imageSources">Image Source(s)</label>
+
+                    <textarea name="" id="imageSources" class="form-control" placeholder="Enter image source(s)" style="width:100%; height:200px;">
+
+                    </textarea>
+                    <!--                    https://i.chzbgr.com/maxW500/8111414528/h01ECD6E5/ https://i.chzbgr.com/maxW500/8108916480/hEBC899A2/ https://i.chzbgr.com/maxW500/8110513664/hA3A0735B/ https://i.chzbgr.com/maxW500/8105867008/h0F928557/ https://i.chzbgr.com/maxW500/8100100864/h6B845F1A/ https://i.chzbgr.com/maxW500/8105339904/hACEB58E5/ https://i.chzbgr.com/maxW500/8104379136/h6796F116/ https://i.chzbgr.com/maxW500/8102545408/h967D722C/ https://i.chzbgr.com/maxW500/8101120512/hADB2E9BF/ https://i.chzbgr.com/maxW500/8100080896/h23550B01/ https://i.chzbgr.com/maxW500/8105615360/hAD96E959/ https://i.chzbgr.com/maxW500/8104376064/h6284DB43/ https://i.chzbgr.com/maxW500/8099811584/h1D5F19A3/ -->
+                </div>
+                <button id="imageUpdate" class="btn btn-default col-md-12" onclick="update()">Update</button>
+            </div>
+        </div>
+        <br/>
+        <div class="row">
+            <div class="progress">
+                <div class="progress-bar" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" style="width: 0%;">
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="imageDisplay">
+
+    </div>
+
 </body>
 
 </html>
