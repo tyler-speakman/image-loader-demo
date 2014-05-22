@@ -13,6 +13,106 @@
     <script src="http://cdnjs.cloudflare.com/ajax/libs/packery/1.1.2/packery.pkgd.min.js"></script>
     <script src="http://netdna.bootstrapcdn.com/bootstrap/3.1.1/js/bootstrap.min.js"></script>
 
+    <style>
+    html {
+        overflow:scroll;
+    }
+    </style>
+
+</head>
+
+
+<body>
+    <div class="container">
+        <div class="jumbotron">
+            <h1>Image Loader Demo</h1>
+            <p>A quick and dirty image loader demo.
+            </p>
+            <p>Simply paste (or drag) in a series of URLs, then push the "Update" button.
+            </p>
+            <p>For example, try copying-and-pasting (or dragging-and-dropping) the following:
+            </p>
+            <small>
+                <span class="label label-default">https://www.google.com/favicon.ico</span>
+                <span class="label label-default">https://www.yahoo.com/favicon.ico</span>
+                <span class="label label-default">https://www.bing.com/favicon.ico</span>
+                <span class="label label-default">https://www.amazon.com/favicon.ico</span>
+                <span class="label label-default">https://www.wikipedia.com/favicon.ico</span>
+                <span class="label label-default">https://www.ebay.com/favicon.ico</span>
+                <span class="label label-default">https://www.yandex.com/favicon.ico</span>
+                <span class="label label-default">https://www.facebook.com/favicon.ico</span>
+                <span class="label label-default">https://www.twitter.com/favicon.ico</span>
+                <span class="label label-default">http://linkedin.com/favicon.ico</span>
+                <span class="label label-default">http://taobao.com/favicon.ico</span>
+                <span class="label label-default">http://live.com/favicon.ico</span>
+                <span class="label label-default">http://sina.com.cn/favicon.ico</span>
+                <span class="label label-default">http://blogspot.com/favicon.ico</span>
+                <span class="label label-default">http://weibo.com/favicon.ico</span>
+                <span class="label label-default">http://wordpress.com/favicon.ico</span>
+                <span class="label label-default">http://yandex.ru/favicon.ico</span>
+                <span class="label label-default">http://yahoo.co.jp/favicon.ico</span>
+                <span class="label label-default">http://vk.com/favicon.ico</span>
+                <span class="label label-default">http://tmall.com/favicon.ico</span>
+                <span class="label label-default">http://sohu.com/favicon.ico</span>
+                <span class="label label-default">http://pinterest.com/favicon.ico</span>
+                <span class="label label-default">http://ask.com/favicon.ico</span>
+                <span class="label label-default">http://msn.com/favicon.ico</span>
+                <span class="label label-default">http://soso.com/favicon.ico</span>
+                <span class="label label-default">http://tumblr.com/favicon.ico</span>
+                <span class="label label-default">http://instagram.com/favicon.ico</span>
+                <span class="label label-default">http://mail.ru/favicon.ico</span>
+                <span class="label label-default">http://microsoft.com/favicon.ico</span>
+                <span class="label label-default">http://paypal.com/favicon.ico</span>
+                <span class="label label-default">http://imdb.com/favicon.ico</span>
+                <span class="label label-default">http://apple.com/favicon.ico</span>
+                <span class="label label-default">http://adcash.com/favicon.ico</span>
+                <span class="label label-default">http://stackoverflow.com/favicon.ico</span>
+                <span class="label label-default">http://craigslist.org/favicon.ico</span>
+                <span class="label label-default">http://cnn.com/favicon.ico</span>
+                <span class="label label-default">http://imgur.com/favicon.ico</span>
+                <span class="label label-default">http://neobux.com/favicon.ico</span>
+                <span class="label label-default">http://ifeng.com/favicon.ico</span>
+                <span class="label label-default">http://reddit.com/favicon.ico</span>
+                <span class="label label-default">http://bbc.co.uk/favicon.ico</span>
+                <span class="label label-default">http://blogger.com/favicon.ico</span>
+                <span class="label label-default">http://go.com/favicon.ico</span>
+                <span class="label label-default">http://alipay.com/favicon.ico</span>
+                <span class="label label-default">http://about.com/favicon.ico</span>
+                <span class="label label-default">http://alibaba.com/favicon.ico</span>
+                <span class="label label-default">http://googleusercontent.com/favicon.ico</span>
+                <span class="label label-default">http://odnoklassniki.ru/favicon.ico</span>
+                <span class="label label-default">http://people.com.cn/favicon.ico</span>
+            </small>
+        </div>
+
+        <div class="row">
+            <div role="form">
+                <div class="form-group">
+                    <label for="imageSources">Image Source(s)</label>
+                    <textarea name="" id="imageSources" class="form-control" placeholder="Enter image source(s)" style="width:100%; height:200px;">
+                    </textarea>
+                    <p>
+                        <small>Enter image source(s) (i.e., http://www.my-domain.com/my-image.jpg, etc.) -- able to drag-and-drop or copy-and-paste</small>
+                    </p>
+                </div>
+                <button id="imageUpdate" class="btn btn-default col-md-12" onclick="update()">Update</button>
+            </div>
+        </div>
+
+        <br/>
+        <div class="row">
+            <div id="feedback">
+            </div>
+
+        </div>
+
+        <div class="row">
+            <div id="imageDisplay">
+            </div>
+        </div>
+
+    </div>
+
     <script>
     /**
      * A simplified set of functions for updating the progress bar
@@ -136,7 +236,7 @@
             }
 
             // If we do not already exist, then create ourself
-            var source = '<div><button type="button" class="close glyphicon glyphicon-remove" data-dismiss="alert" aria-hidden="true"></button><p><strong>Failed!</strong> <span class="message"></span><p></div>';
+            var source = '<div><button type="button" class="close glyphicon glyphicon-remove" data-dismiss="alert" aria-hidden="true"></button><p><strong>Not entirely successful!</strong> <span class="message"></span><p></div>';
 
             self.$ = $(source);
         }
@@ -156,7 +256,7 @@
         // Remove existing images
         $('#imageDisplay').find('.img').remove();
 
-        // Add new images
+        // Parse image sources
         var $imageSources = $('#imageSources');
         var unparsedImageSources = $imageSources.val();
         var imagesRegExp = new RegExp(/(http((?!http).)+)/gi)
@@ -165,12 +265,13 @@
             return imagesRegExp.test(value);
         });
 
-        // If there are not any images to load, then exit.
+        // If there are not any images to load, then display an appropriate mesage exit.
         if (imageSourceArray.length === 0) {
             alertManager.show({
                 type: 'danger',
                 message: 'Please confirm that your images are formatted as: http://*'
             });
+
             return;
         }
 
@@ -186,7 +287,8 @@
 
                 // Handle successful loads
                 img.onload = function(evt) {
-                    console.log(Mustache.render('successful load of "{{src}}"', evt.target));
+                    var loadMessage = Mustache.render('successful load of "{{{src}}}"', evt.target)
+                    console.log(loadMessage);
 
                     // Update progress bar
                     progressManager.setValue(progressManager.value + 1);
@@ -196,28 +298,37 @@
                     var $target = $(target);
                     $target.addClass('img')
                         .addClass('img-responsive')
-                        .addClass('img-thumbnail');
+                        .addClass('img-thumbnail')
+                        .attr('title', loadMessage);
 
-                    return callback(null, $target);
+                    callback(null, $target);
+
+                    return;
                 };
 
                 // Handle failed loads
                 img.onerror = function(evt) {
-                    console.log(Mustache.render('failed load of "{{src}}"', evt.target));
+                    var errorMessage = Mustache.render('failed load of "{{{src}}}"', evt.target)
+                    console.log(errorMessage);
 
+                    // Apply classes to image
                     var target = evt.target
                     var $target = $(target);
                     $target.addClass('img')
                         .addClass('img-responsive')
                         .addClass('img-thumbnail')
+                        .attr('title', errorMessage)
                         .width('32')
-                        .height('32')
-                        .attr('title', Mustache.render('failed load of {{src}}', target));
+                        .height('32');
 
-                    return callback(null, $target);
+                    callback(null, $target);
+
+                    return;
                 };
 
+                // Set the source to start loading the image
                 img.src = value;
+
                 return;
             },
 
@@ -233,114 +344,52 @@
                     itemSelector: '.img',
                     gutter: 2
                 });
+
+                // Display completion message
+                alertManager.show({
+                    type: 'info',
+                    message: 'Images done loading'
+                });
             });
     };
 
+    var applyDragAndDropTextFunctionality = function(element) {
+        // Make the images sources textarea accept dragged content
+        element.on("dragenter", function(e) {
+            e.stopPropagation();
+            e.preventDefault();
+        });
+        element.on("dragover", function(e) {
+            e.stopPropagation();
+            e.preventDefault();
+        });
+        element.on("drop", function(e) {
+            e = e.originalEvent;
+            e.stopPropagation();
+            e.preventDefault();
 
+            for (var key in e.dataTransfer.items) {
+                var item = e.dataTransfer.items[key];
+                var type = e.dataTransfer.types[key];
+                if (type === 'text/plain') {
+                    item.getAsString(function(data) {
+                        console.log(data)
+                        var imageSources = element.val();
+                        imageSources += '\n' + data;
+                        element.val(imageSources);
+                        update();
+                    });
+                }
+            }
+        });
+    };
 
-    // // Initialize the page when all elements are loaded.
-    // document.ready = function() {
-    //     document.ready = null;
-    //     update();
-    // };
+    // Initialize
+    $(document).on('ready', function() {
+        var imageSourcesElement = $("#imageSources");
+        applyDragAndDropTextFunctionality(imageSourcesElement)
+    });
     </script>
-
-    <style>
-    html {
-        overflow:scroll;
-    }
-    </style>
-
-</head>
-
-
-<body>
-    <div class="container">
-        <div class="jumbotron">
-            <h1>Image Loader Demo</h1>
-            <p>A quick and dirty image loader demo.
-            </p>
-            <p>Simply paste in a series of URLs, then push the "Update" button.
-            </p>
-            <p>For example, try copying and pasting the following:
-            </p>
-            <small>
-                <span class="label label-default">https://www.google.com/favicon.ico</span>
-                <span class="label label-default">https://www.yahoo.com/favicon.ico</span>
-                <span class="label label-default">https://www.bing.com/favicon.ico</span>
-                <span class="label label-default">https://www.amazon.com/favicon.ico</span>
-                <span class="label label-default">https://www.wikipedia.com/favicon.ico</span>
-                <span class="label label-default">https://www.ebay.com/favicon.ico</span>
-                <span class="label label-default">https://www.yandex.com/favicon.ico</span>
-                <span class="label label-default">https://www.facebook.com/favicon.ico</span>
-                <span class="label label-default">https://www.twitter.com/favicon.ico</span>
-                <span class="label label-default">http://linkedin.com/favicon.ico</span>
-                <span class="label label-default">http://taobao.com/favicon.ico</span>
-                <span class="label label-default">http://live.com/favicon.ico</span>
-                <span class="label label-default">http://sina.com.cn/favicon.ico</span>
-                <span class="label label-default">http://blogspot.com/favicon.ico</span>
-                <span class="label label-default">http://weibo.com/favicon.ico</span>
-                <span class="label label-default">http://wordpress.com/favicon.ico</span>
-                <span class="label label-default">http://yandex.ru/favicon.ico</span>
-                <span class="label label-default">http://yahoo.co.jp/favicon.ico</span>
-                <span class="label label-default">http://vk.com/favicon.ico</span>
-                <span class="label label-default">http://tmall.com/favicon.ico</span>
-                <span class="label label-default">http://sohu.com/favicon.ico</span>
-                <span class="label label-default">http://pinterest.com/favicon.ico</span>
-                <span class="label label-default">http://ask.com/favicon.ico</span>
-                <span class="label label-default">http://msn.com/favicon.ico</span>
-                <span class="label label-default">http://soso.com/favicon.ico</span>
-                <span class="label label-default">http://tumblr.com/favicon.ico</span>
-                <span class="label label-default">http://instagram.com/favicon.ico</span>
-                <span class="label label-default">http://mail.ru/favicon.ico</span>
-                <span class="label label-default">http://microsoft.com/favicon.ico</span>
-                <span class="label label-default">http://paypal.com/favicon.ico</span>
-                <span class="label label-default">http://imdb.com/favicon.ico</span>
-                <span class="label label-default">http://apple.com/favicon.ico</span>
-                <span class="label label-default">http://adcash.com/favicon.ico</span>
-                <span class="label label-default">http://stackoverflow.com/favicon.ico</span>
-                <span class="label label-default">http://craigslist.org/favicon.ico</span>
-                <span class="label label-default">http://cnn.com/favicon.ico</span>
-                <span class="label label-default">http://imgur.com/favicon.ico</span>
-                <span class="label label-default">http://neobux.com/favicon.ico</span>
-                <span class="label label-default">http://ifeng.com/favicon.ico</span>
-                <span class="label label-default">http://reddit.com/favicon.ico</span>
-                <span class="label label-default">http://bbc.co.uk/favicon.ico</span>
-                <span class="label label-default">http://blogger.com/favicon.ico</span>
-                <span class="label label-default">http://go.com/favicon.ico</span>
-                <span class="label label-default">http://alipay.com/favicon.ico</span>
-                <span class="label label-default">http://about.com/favicon.ico</span>
-                <span class="label label-default">http://alibaba.com/favicon.ico</span>
-                <span class="label label-default">http://googleusercontent.com/favicon.ico</span>
-                <span class="label label-default">http://odnoklassniki.ru/favicon.ico</span>
-                <span class="label label-default">http://people.com.cn/favicon.ico</span>
-            </small>
-        </div>
-
-        <div class="row">
-            <div role="form">
-                <div class="form-group">
-                    <label for="imageSources">Image Source(s)</label>
-                    <textarea name="" id="imageSources" class="form-control" placeholder="Enter image source(s)" style="width:100%; height:200px;">
-                    </textarea>
-                </div>
-                <button id="imageUpdate" class="btn btn-default col-md-12" onclick="update()">Update</button>
-            </div>
-        </div>
-
-        <br/>
-        <div class="row">
-            <div id="feedback">
-            </div>
-
-        </div>
-
-        <div class="row">
-            <div id="imageDisplay">
-            </div>
-        </div>
-
-    </div>
 
 </body>
 
