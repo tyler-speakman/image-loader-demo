@@ -279,6 +279,7 @@
         progressManager.show();
 
         // Load the image objects (from image sources)
+        console.log(imageSourceArray);
         async.map(imageSourceArray,
             function(value, callback) {
                 var img = new Image();
@@ -293,6 +294,7 @@
 
                     // Apply classes to image
                     var target = evt.target
+                    target.onload = null; // Clear the event handler to prevent duplicate callbacks in IE
                     var $target = $(target);
                     $target.addClass('img')
                         .addClass('img-responsive')
@@ -311,6 +313,7 @@
 
                     // Apply classes to image
                     var target = evt.target
+                    target.onerror = null; // Clear the event handler to prevent duplicate callbacks in IE
                     var $target = $(target);
                     $target.addClass('img')
                         .addClass('img-responsive')
@@ -331,9 +334,16 @@
             },
 
             function(err, results) {
+
                 // Update progress
                 progressManager.setValue(progressManager.max);
                 progressManager.hide();
+
+                // Sort the results by size (biggest to smallest)
+                results = _.sortBy(results, function(value, key, index) {
+                    var img = value[0];
+                    return -1 * (img.width * img.height);
+                });                
 
                 // Append image (and organize)
                 var $imageDisplay = $('#imageDisplay');
@@ -366,19 +376,28 @@
             e.stopPropagation();
             e.preventDefault();
 
-            for (var key in e.dataTransfer.items) {
-                var item = e.dataTransfer.items[key];
-                var type = e.dataTransfer.types[key];
-                if (type === 'text/plain') {
-                    item.getAsString(function(data) {
-                        console.log(data)
-                        var imageSources = element.val();
-                        imageSources += '\n' + data;
-                        element.val(imageSources);
-                        update();
-                    });
-                }
+            var data = e.dataTransfer.getData('text');
+            // var data = e.dataTransfer.getData('text/plain');
+            if (data) {
+                var imageSources = element.val();
+                imageSources += '\n' + data;
+                element.val(imageSources);
+                update();
             }
+
+            // for (var key in e.dataTransfer.items) {
+            //     var item = e.dataTransfer.items[key];
+            //     var type = e.dataTransfer.types[key];
+            //     if (type === 'text/plain') {
+            //         item.getAsString(function(data) {
+            //             console.log(data)
+            //             var imageSources = element.val();
+            //             imageSources += '\n' + data;
+            //             element.val(imageSources);
+            //             update();
+            //         });
+            //     }
+            // }
         });
     };
 
